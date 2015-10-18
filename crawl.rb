@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 
-require './lib/crawler'
-require './lib/sitemap'
+require 'crawler'
+require 'sitemap'
 
 require 'logger'
 require 'optparse'
@@ -23,9 +24,6 @@ OptionParser.new do |opts|
     options[:limit] = l
   end
 end.parse!
-
-puts options.inspect
-puts ARGV.inspect
 
 initial_uri = URI(ARGV[0])
 
