@@ -3,9 +3,9 @@ A simple web crawler
 Requirements
 ------------
 
-TBC
+- Nokogiri
 
 Instructions
 ------------
 
-TBC
+./crawl.rm <initial_URI>

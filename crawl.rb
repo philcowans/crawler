@@ -1,3 +1,10 @@
 #!/usr/bin/env ruby
 
-puts 'Hello Crawler'
+require './lib/crawler'
+
+require 'uri'
+
+initial_uri = URI(ARGV[0])
+
+crawler = Crawler.new
+sitemap = crawler.crawl(initial_uri)
