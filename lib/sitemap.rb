@@ -4,7 +4,7 @@ class Sitemap < Hash
     output +=  "digraph sitemap {\n"
     each do |source, targets|
       targets.each do |target|
-        output +=  "  #{source} -> #{target}\n"
+        output +=  "  \"#{source}\" -> \"#{target}\"\n"
       end
     end
     output += "}\n"
