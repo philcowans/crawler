@@ -9,13 +9,17 @@ require 'uri'
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: crawl.rb [options] <initial URI>"
+  opts.banner = 'Usage: crawl.rb [options] <initial URI>'
 
-  opts.on("-d", "--domain-only", "Only list links within domain") do |d|
+  opts.on('-d', '--domain-only', 'Only list links within domain') do |d|
     options[:domain_only] = d
   end
 
-  opts.on("-l", "--limit limit", Integer, "Limit size of crawl") do |l|
+  opts.on('-a', '--hyperlinks-only', 'Only list hyperlinks (ignore img and link targets)') do |a|
+    options[:hyperlinks_only] = a
+  end
+
+  opts.on('-l', '--limit limit', Integer, 'Limit size of crawl') do |l|
     options[:limit] = l
   end
 end.parse!

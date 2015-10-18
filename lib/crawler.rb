@@ -23,16 +23,23 @@ class Crawler
     @logger.info "Parsing: #{uri.inspect}"
     @sitemap[string_for_comparison(uri)] = Set.new
     doc = Nokogiri::HTML(open(uri.to_s))
-    doc.css('a').each do |link|
-      begin
-        target_uri = URI.join(uri.to_s, link.attributes['href'].to_s)
-        next unless target_uri.scheme == 'http' or target_uri.scheme == 'https'
-        unless @sitemap.has_key?(string_for_comparison(target_uri))
-          @sitemap[string_for_comparison(uri)].add(string_for_comparison(target_uri)) unless target_uri.host != @domain and @options[:domain_only]
-          @crawl_queue.push(string_for_comparison(target_uri)) unless target_uri.host != @domain or @crawl_queue.include?(string_for_comparison(target_uri))
+    if @options[:hyperlinks_only]
+      tag_types = [['a', 'href']]
+    else
+      tag_types = [['a', 'href'], ['img', 'src'], ['link', 'href']]
+    end
+    tag_types.each do |tag_type|
+      doc.css(tag_type[0]).each do |link|
+        begin
+          target_uri = URI.join(uri.to_s, link.attributes[tag_type[1]].to_s)
+          next unless target_uri.scheme == 'http' or target_uri.scheme == 'https'
+          unless @sitemap.has_key?(string_for_comparison(target_uri))
+            @sitemap[string_for_comparison(uri)].add(string_for_comparison(target_uri)) unless target_uri.host != @domain and @options[:domain_only]
+            @crawl_queue.push(string_for_comparison(target_uri)) unless target_uri.host != @domain or @crawl_queue.include?(string_for_comparison(target_uri))
+          end
+        rescue URI::InvalidURIError
+          @logger.warn 'Ingnoring unparsable URI'
         end
-      rescue URI::InvalidURIError
-        @logger.warn 'Ingnoring unparsable URI'
       end
     end
    end
