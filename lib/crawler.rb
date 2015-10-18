@@ -1,4 +1,4 @@
-require './lib/sitemap'
+require 'sitemap'
 
 require 'nokogiri'
 require 'open-uri'
