@@ -1,3 +1,5 @@
+require './lib/sitemap'
+
 require 'nokogiri'
 require 'open-uri'
 require 'set'
@@ -6,7 +8,7 @@ class Crawler
   def crawl(initial_uri, limit = nil)
     @domain = initial_uri.host
     @crawl_queue = [initial_uri.to_s]
-    @sitemap = {}
+    @sitemap = Sitemap.new
     download_and_parse_uri(URI.parse(@crawl_queue.pop)) until @crawl_queue.empty? or (limit and @sitemap.keys.size > limit)
     @sitemap
   end
