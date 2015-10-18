@@ -5,18 +5,21 @@ require 'open-uri'
 require 'set'
 
 class Crawler
-  def crawl(initial_uri, limit = nil)
+  def crawl(initial_uri, logger, limit = nil)
+    @logger = logger
     @domain = initial_uri.host
     @crawl_queue = [initial_uri.to_s]
     @sitemap = Sitemap.new
+
     download_and_parse_uri(URI.parse(@crawl_queue.pop)) until @crawl_queue.empty? or (limit and @sitemap.keys.size > limit)
+
     @sitemap
   end
 
   private
 
   def download_and_parse_uri(uri)
-    puts "Parsing: #{uri.inspect}"
+    @logger.info "Parsing: #{uri.inspect}"
     @sitemap[string_for_comparison(uri)] = Set.new
     doc = Nokogiri::HTML(open(uri.to_s))
     doc.css('a').each do |link|
@@ -30,7 +33,7 @@ class Crawler
           end
         end
       rescue URI::InvalidURIError
-        puts 'Ingnoring unparsable URI'
+        @logger.warn 'Ingnoring unparsable URI'
       end
     end
    end
