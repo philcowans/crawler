@@ -5,13 +5,14 @@ require 'open-uri'
 require 'set'
 
 class Crawler
-  def crawl(initial_uri, logger, limit = nil)
+  def crawl(initial_uri, logger, options)
     @logger = logger
     @domain = initial_uri.host
     @crawl_queue = [initial_uri.to_s]
     @sitemap = Sitemap.new
+    @options = options
 
-    download_and_parse_uri(URI.parse(@crawl_queue.pop)) until @crawl_queue.empty? or (limit and @sitemap.keys.size > limit)
+    download_and_parse_uri(URI.parse(@crawl_queue.pop)) until @crawl_queue.empty? or (options.has_key?(:limit) and @sitemap.keys.size > @options[:limit])
 
     @sitemap
   end
@@ -27,10 +28,8 @@ class Crawler
         target_uri = URI.join(uri.to_s, link.attributes['href'].to_s)
         next unless target_uri.scheme == 'http' or target_uri.scheme == 'https'
         unless @sitemap.has_key?(string_for_comparison(target_uri))
-          @sitemap[string_for_comparison(uri)].add(string_for_comparison(target_uri))
-          unless target_uri.host != @domain or @crawl_queue.include?(string_for_comparison(target_uri))
-            @crawl_queue.push(string_for_comparison(target_uri))
-          end
+          @sitemap[string_for_comparison(uri)].add(string_for_comparison(target_uri)) unless target_uri.host != @domain and @options[:domain_only]
+          @crawl_queue.push(string_for_comparison(target_uri)) unless target_uri.host != @domain or @crawl_queue.include?(string_for_comparison(target_uri))
         end
       rescue URI::InvalidURIError
         @logger.warn 'Ingnoring unparsable URI'
