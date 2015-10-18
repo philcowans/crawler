@@ -3,9 +3,48 @@ A simple web crawler
 Requirements
 ------------
 
-- Nokogiri
+- A working Ruby installation, with standard library (developed using 2.2.2p95)
+- Nokogiri HTML / XML parser
+- Graphviz (or another DOT file processor)
 
 Instructions
 ------------
 
-./crawl.rm <initial_URI>
+To perform an unrestricted crawl and dump sitemap to stdout:
+
+./crawl.rb <initial_URI>
+
+e.g.:
+
+./crawl.rb http://wiprodigital.com/ > sitemap.dot
+
+This will produce a DOT file, which can be read by Graphviz, e.g.:
+
+dot -Tpdf ./sitemap.dot > sitemap.pdf
+
+A few other options are provided:
+
+-d, --domain-only: Don't include links to other domains in sitemap - useful to keep complexity manageable for visualisation 
+-a, --hyperlinks-only: Only process hyperlinks ('a' tags, ignore 'img' and 'link', which would orfinarily be included)
+-l, --limit n: Limit size of crawl to parsing a maximum of n pages
+
+Known issues / limitations
+--------------------------
+
+- No tests, and definitely not done TDD. This is entirely because my
+  RSpec is too rusty after a couple of years away from hands on
+  coding. Was starting to feel uncomfortable when I got into
+  refactoring.
+
+- Depends on Nokogiri being sensible when given a non-HTML file. Seems
+  to silently produce no ongoing links, but really ought to validate MIME
+  types before attempting to parse.
+
+- Haven't tested with HTTPS.
+
+- Haven't (explicitly) tested with malformed HTML.
+
+- Haven't actually let it run to completion http://wiprodigital.com/ -
+  will do after submitting and see what happens.
+
+- No Bundler.
