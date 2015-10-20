@@ -25,10 +25,26 @@ class Crawler
     @sitemap.has_key?(string_for_comparison(target_uri))
   end
 
+  def do_not_follow_link?(target_uri)
+    target_uri.host != @domain
+  end
+
   def download_and_parse_uri(uri)
     @logger.info "Parsing: #{uri.inspect}"
     @sitemap[string_for_comparison(uri)] = Set.new
-    doc = Nokogiri::HTML(open(uri.to_s))
+    begin
+      doc = Nokogiri::HTML(open(uri.to_s))
+      parse_document(doc, uri)
+    rescue OpenURI::HTTPError
+      @logger.warn 'Failed to download URI - will not attempty retry'
+    end
+  end
+
+  def ignore_link?(target_uri)
+    target_uri.host != @domain and @options[:domain_only]
+  end
+
+  def parse_document(doc, uri)
     tag_types.each do |tag_type|
       doc.css(tag_type[0]).each do |link|
         begin
@@ -45,14 +61,6 @@ class Crawler
         end
       end
     end
-  end
-
-  def ignore_link?(target_uri)
-    target_uri.host != @domain and @options[:domain_only]
-  end
-
-  def do_not_follow_link?(target_uri)
-    target_uri.host != @domain
   end
 
   def string_for_comparison(uri)
